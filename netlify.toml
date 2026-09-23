@@ -1,0 +1,21 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/ai"
+  to = "/.netlify/functions/ai"
+  status = 200
+
+[[redirects]]
+  from = "/api/extract-document"
+  to = "/.netlify/functions/extract-document"
+  status = 200
+
+[[redirects]]
+  from = "/api/sync-blobs"
+  to = "/.netlify/functions/sync-blobs"
+  status = 200
