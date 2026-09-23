@@ -1,0 +1,15 @@
+{
+  "name": "objectif-bac-2027",
+  "version": "1.0.0",
+  "description": "Application de révision pour le Bac 2027 avec Gemini 3.8 Flash",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Pas de build nécessaire'"
+  },
+  "dependencies": {
+    "@google/genai": "^2.3.0",
+    "@netlify/blobs": "^7.0.0",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  }
+}
