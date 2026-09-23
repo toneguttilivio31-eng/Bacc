@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objectif Bac 2027 - Tuteur IA Intelligent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-xl">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Objectif Bac 2027</h1>
+          <p class="text-xs text-slate-400">Assistant de révision & Tuteur IA (Gemini 3.8 Flash)</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 text-xs bg-slate-700/50 px-3 py-1.5 rounded-full border border-slate-600">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300">Synchronisé</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Zone Principale -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 flex flex-col md:flex-row gap-6">
+
+    <!-- Panneau de Contrôle & Importation -->
+    <section class="w-full md:w-1/3 bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col gap-4">
+      <h2 class="font-bold text-md text-indigo-400 border-b border-slate-700 pb-2">
+        <i class="fa-solid fa-file-import mr-2"></i> Documents & Supports
+      </h2>
+
+      <!-- Import de Fichier (PDF / DOCX) -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Importer un cours (PDF ou Word)</label>
+        <input type="file" id="documentInput" accept=".pdf,.docx" class="hidden" onchange="handleDocumentUpload(event)">
+        <button onclick="document.getElementById('documentInput').click()" class="w-full bg-slate-700 hover:bg-slate-650 text-slate-200 border border-dashed border-slate-500 rounded-xl p-3 text-xs flex items-center justify-center gap-2 cursor-pointer transition">
+          <i class="fa-solid fa-file-pdf text-rose-400 text-base"></i>
+          <span id="docStatus">Choisir un PDF ou DOCX...</span>
+        </button>
+      </div>
+
+      <!-- Import d'Image (Photo de cours / Exercice) -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Ajouter une photo (Exercice / Schéma)</label>
+        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+        <button onclick="document.getElementById('imageInput').click()" class="w-full bg-slate-700 hover:bg-slate-650 text-slate-200 border border-dashed border-slate-500 rounded-xl p-3 text-xs flex items-center justify-center gap-2 cursor-pointer transition">
+          <i class="fa-solid fa-image text-emerald-400 text-base"></i>
+          <span id="imgStatus">Prendre / Choisir une image...</span>
+        </button>
+        <div id="imagePreviewContainer" class="hidden mt-2 relative">
+          <img id="imagePreview" class="w-full h-32 object-cover rounded-lg border border-slate-600" alt="Aperçu">
+          <button onclick="clearImage()" class="absolute top-1 right-1 bg-rose-600 text-white rounded-full p-1 text-xs hover:bg-rose-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode de Génération -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Format de réponse</label>
+        <select id="responseType" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+          <option value="explication">Explication pédagogique & Cours</option>
+          <option value="fiche">Fiche de révision synthétique</option>
+          <option value="qcm">Quiz / QCM interactif (Format JSON)</option>
+          <option value="exercice">Résolution d'exercice pas à pas</option>
+        </select>
+      </div>
+
+      <!-- Raccourcis Rapides -->
+      <div class="mt-auto pt-2 border-t border-slate-700">
+        <p class="text-[11px] text-slate-400 mb-2 font-medium">Actions rapides Bac :</p>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button onclick="quickAction('Génère un résumé complet des points clés de ce cours pour le Bac.')" class="bg-slate-700 hover:bg-indigo-900/50 hover:border-indigo-500 border border-slate-600 rounded-lg p-2 text-left transition text-slate-300">
+            ⚡ Fiche Bac
+          </button>
+          <button onclick="quickAction('Crée un QCM de 5 questions avec corrections détaillées.')" class="bg-slate-700 hover:bg-indigo-900/50 hover:border-indigo-500 border border-slate-600 rounded-lg p-2 text-left transition text-slate-300">
+            📝 Quiz 5 QCM
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zone de Chat & Réponses IA -->
+    <section class="flex-1 bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col h-[600px]">
+      
+      <!-- Zone d'affichage des messages -->
+      <div id="chatBox" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 scrollbar-thin scrollbar-thumb-slate-700">
+        <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-700 text-sm">
+          <p class="text-indigo-300 font-semibold mb-1">👋 Bonjour ! Je suis ton tuteur IA pour le Bac 2027.</p>
+          <p class="text-slate-300">Pose-moi tes questions, colle un extrait de cours ou importe un document pour créer des fiches, des quiz ou résoudre un problème pas à pas.</p>
+        </div>
+      </div>
+
+      <!-- Zone de Saisie -->
+      <div class="relative">
+        <textarea id="promptInput" rows="3" placeholder="Pose ta question ou demande une fiche de révision..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 pr-12 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        <button id="sendBtn" onclick="sendMessage()" class="absolute right-3 bottom-3 bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-lg transition">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Script de Synchronisation Cloud Netlify Blobs -->
+  <script src="sync.js"></script>
+
+  <!-- Logique de l'application Client -->
+  <script>
+    let currentImageBase64 = null;
+    let currentImageMime = null;
+    let extractedDocumentText = "";
+
+    // 1. Extraction des documents (PDF / DOCX) via /api/extract-document
+    async function handleDocumentUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const docStatus = document.getElementById('docStatus');
+      docStatus.innerText = "Extraction en cours...";
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const res = await fetch('/api/extract-document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileData: e.target.result,
+              fileType: file.type || file.name.split('.').pop()
+            })
+          });
+
+          const data = await res.json();
+          if (data.success && data.text) {
+            extractedDocumentText = data.text;
+            docStatus.innerText = `📄 ${file.name.substring(0, 18)}...`;
+            appendSystemMessage(`Document "${file.name}" importé avec succès (${data.text.length} caractères extraits).`);
+          } else {
+            alert('Erreur d\'extraction : ' + (data.error || 'Format non reconnu'));
+            docStatus.innerText = "Choisir un PDF ou DOCX...";
+          }
+        } catch (err) {
+          alert('Erreur lors du traitement du document.');
+          docStatus.innerText = "Choisir un PDF ou DOCX...";
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 2. Gestion de l'image (Vision)
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      currentImageMime = file.type;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentImageBase64 = e.target.result;
+        document.getElementById('imagePreview').src = e.target.result;
+        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        document.getElementById('imgStatus').innerText = "Image sélectionnée";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearImage() {
+      currentImageBase64 = null;
+      currentImageMime = null;
+      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      document.getElementById('imgStatus').innerText = "Prendre / Choisir une image...";
+      document.getElementById('imageInput').value = '';
+    }
+
+    // 3. Action rapide
+    function quickAction(promptText) {
+      document.getElementById('promptInput').value = promptText;
+      sendMessage();
+    }
+
+    // 4. Envoi du message à /api/ai (Backend Gemini 3.8 Flash)
+    async function sendMessage() {
+      const promptInput = document.getElementById('promptInput');
+      const userText = promptInput.value.trim();
+
+      if (!userText && !currentImageBase64 && !extractedDocumentText) {
+        alert('Veuillez saisir une question ou importer un support.');
+        return;
+      }
+
+      // Construction du prompt final (avec contexte de document si présent)
+      let fullPrompt = userText;
+      if (extractedDocumentText) {
+        fullPrompt = `[DOCUMENT IMPORTÉ]\n${extractedDocumentText}\n\n[CONSIGNE UTILISATEUR]\n${userText || 'Analyse ce document et fais-en une synthèse.'}`;
+      }
+
+      const responseType = document.getElementById('responseType').value;
+      const isJsonMode = responseType === 'qcm';
+
+      appendUserMessage(userText || "Analyse du document/image transmis");
+      promptInput.value = '';
+
+      const loadingId = appendLoadingMessage();
+
+      try {
+        const response = await fetch('/api/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: fullPrompt,
+            imageBase64: currentImageBase64,
+            mimeType: currentImageMime,
+            jsonMode: isJsonMode
+          })
+        });
+
+        const data = await response.json();
+        removeMessage(loadingId);
+
+        if (data.text) {
+          appendAiMessage(data.text);
+          // Réinitialisation des contextes temporaires après envoi réussi
+          clearImage();
+        } else {
+          appendAiMessage("⚠️ Une erreur est survenue lors de la réponse de l'IA : " + (data.error || 'Erreur inconnue'));
+        }
+      } catch (err) {
+        removeMessage(loadingId);
+        appendAiMessage("⚠️ Erreur de connexion avec le serveur.");
+      }
+    }
+
+    // Fonctions d'affichage dans le chat
+    function appendUserMessage(msg) {
+      const chatBox = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = "bg-indigo-600/30 text-indigo-100 p-3 rounded-xl border border-indigo-500/30 text-sm ml-8 self-end";
+      div.innerText = msg;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendAiMessage(msg) {
+      const chatBox = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = "bg-slate-700 p-4 rounded-xl border border-slate-600 text-sm text-slate-200 whitespace-pre-wrap leading-relaxed";
+      div.innerText = msg;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendSystemMessage(msg) {
+      const chatBox = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = "bg-emerald-950/40 text-emerald-300 p-2.5 rounded-lg border border-emerald-800 text-xs italic text-center";
+      div.innerText = msg;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendLoadingMessage() {
+      const chatBox = document.getElementById('chatBox');
+      const id = 'loading_' + Date.now();
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = "bg-slate-700/50 p-3 rounded-xl border border-slate-600 text-xs text-slate-400 animate-pulse flex items-center gap-2";
+      div.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-indigo-400"></i> Gemini 3.8 Flash réfléchit...`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return id;
+    }
+
+    function removeMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>
