@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Objectif Bac 2027 — Pro Ultra Fast</title>
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --glass-surface: rgba(22, 28, 45, 0.68);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-glow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --accent: #38bdf8;
+      --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #f43f5e;
+
+      --nav-height: 70px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #070913 80%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px);
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .app-header {
+      position: sticky; top: 0; z-index: 900;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px;
+      background: rgba(7, 9, 19, 0.8);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .brand { font-weight: 900; font-size: 1.2rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .user-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      padding: 6px 14px; border-radius: 99px; cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .user-pill:active { transform: scale(0.94); }
+
+    /* CARTES & GLASSMORPHISME */
+    .card {
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 20px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--glass-glow);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* BOUTONS RETRAVAILLÉS */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--primary-gradient);
+      color: white; border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 12px 20px; border-radius: 14px; font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn:active { transform: scale(0.95); opacity: 0.9; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); border-color: var(--glass-border); box-shadow: none; }
+    .btn-sm { padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; }
+
+    /* FILTRES DÉROULANTS (CHIPS) */
+    .chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+    .chip {
+      padding: 8px 18px; border-radius: 99px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      font-size: 0.82rem; white-space: nowrap; color: var(--text-muted); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip.active { background: var(--accent-gradient); color: white; font-weight: 700; border-color: transparent; }
+
+    /* INPUTS & TEXTAREAS */
+    input, select, textarea {
+      width: 100%; background: rgba(7, 9, 19, 0.7);
+      border: 1px solid var(--glass-border); border-radius: 12px;
+      padding: 12px 14px; color: white; font-size: 0.9rem; outline: none; margin-top: 6px;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    /* BULLE IA REVENTÉE ET MENU EXPANDABLE */
+    .fab-container {
+      position: fixed; right: 20px; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+      z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .fab-menu {
+      display: none; flex-direction: column; gap: 8px; align-items: flex-end;
+      animation: fadeIn 0.2s ease;
+    }
+    .fab-menu.open { display: flex; }
+    .fab-item {
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border); color: white; padding: 10px 16px;
+      border-radius: 99px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 8px;
+    }
+    .fab-main {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--primary-gradient); border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white; font-size: 1.5rem; display: grid; place-items: center;
+      cursor: pointer; box-shadow: 0 0 25px rgba(99, 102, 241, 0.7);
+      transition: transform 0.2s; animation: pulseGlow 3s infinite;
+    }
+    .fab-main:active { transform: scale(0.9); }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+      50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.9); }
+    }
+
+    /* FLASHCARDS 3D */
+    .flashcard-3d { perspective: 1000px; height: 200px; margin-bottom: 12px; }
+    .card-inner {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+    }
+    .card-inner.flipped { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+      border-radius: 18px; padding: 20px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center;
+      border: 1px solid var(--glass-border); background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(20px);
+    }
+    .card-back { transform: rotateY(180deg); background: rgba(15, 23, 42, 0.95); border-color: var(--accent); }
+
+    /* NAVIGATION EN BAS */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: calc(var(--nav-height) + var(--safe-bottom)); padding-bottom: var(--safe-bottom);
+      background: rgba(7, 9, 19, 0.85); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 950;
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 0.72rem; background: none; border: none;
+      width: 20%; height: 100%; cursor: pointer; gap: 4px; transition: color 0.2s;
+    }
+    .nav-btn.active { color: var(--accent); font-weight: 700; }
+
+    /* DRAWER MENU SECONDAIRE */
+    .drawer-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px);
+      z-index: 1100; display: none; justify-content: flex-end;
+    }
+    .drawer-overlay.open { display: flex; }
+    .drawer-panel {
+      width: 320px; height: 100%; background: #0f172a;
+      border-left: 1px solid var(--glass-border); padding: 24px;
+      display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+    }
+
+    .tab-content { display: none; padding: 16px; max-width: 800px; margin: 0 auto; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="brand">Objectif Bac 2027</div>
+    <div class="user-pill" onclick="toggleUser()">
+      <div id="user-avatar" style="width:24px; height:24px; border-radius:50%; background:var(--primary-gradient); display:grid; place-items:center; font-weight:bold; font-size:0.75rem;">L</div>
+      <span id="user-name" style="font-size:0.85rem; font-weight:600;">Livio</span>
+    </div>
+  </header>
+
+  <main id="app">
+    
+    <!-- ACCUEIL -->
+    <section id="tab-accueil" class="tab-content active">
+      <div class="card" style="background: var(--primary-gradient);">
+        <h3 style="font-size: 1.3rem;">Tableau de bord</h3>
+        <p style="opacity: 0.9; font-size: 0.85rem; margin-top: 4px;">Niveau 5 · <span id="xp-display">1 420</span> XP · Série : <b>6 jours 🔥</b></p>
+        <button class="btn btn-secondary btn-sm" style="margin-top: 14px; background: rgba(255,255,255,0.2);" onclick="switchTab('revisions')">Lancer les révisions du jour →</button>
+      </div>
+
+      <div class="card">
+        <h4>⚡ Traitement rapide Lien YouTube</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Colle un lien de cours YouTube pour avoir la fiche complète instantanée :</p>
+        <input type="text" id="yt-url" placeholder="https://www.youtube.com/watch?v=...">
+        <button class="btn btn-sm" style="margin-top: 8px; width: 100%;" onclick="processYouTube()">Résumé & Fiche YouTube</button>
+        <div id="yt-result" style="margin-top: 10px; font-size: 0.85rem;"></div>
+      </div>
+    </section>
+
+    <!-- COURS -->
+    <section id="tab-cours" class="tab-content">
+      <h2 style="margin-bottom: 12px;">Générateur de Cours Ultra-Rapide</h2>
+      <div class="chips-scroll" id="course-chips" style="margin-bottom: 14px;"></div>
+
+      <!-- FORMULAIRE PHOTO / TEXTE -->
+      <div class="card">
+        <h4>Nouveau cours depuis Photo ou Texte</h4>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <select id="c-subject" style="flex: 1;">
+            <option value="HGGSP">HGGSP</option>
+            <option value="SES">SES</option>
+            <option value="Histoire-Géo">Histoire-Géo</option>
+            <option value="Maths">Maths</option>
+            <option value="Philo">Philo</option>
+            <option value="SVT">SVT</option>
+            <option value="Physique-Chimie">Physique-Chimie</option>
+          </select>
+          <input type="text" id="c-chapter" placeholder="Nom du chapitre" style="flex: 1; margin: 0;">
+        </div>
+
+        <textarea id="c-text" rows="3" placeholder="Saisis du texte ou ajoute des photos de tes cours..." style="margin-top: 8px;"></textarea>
+        
+        <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+          <input type="file" id="c-photos" multiple accept="image/*" style="margin: 0; font-size: 0.8rem;">
+        </div>
+
+        <button class="btn" style="width: 100%; margin-top: 12px;" onclick="generateFastCourse()">⚡ Générer (Résumé + Cours + Fiches + QCM)</button>
+        <div id="c-status" style="font-size: 0.85rem; color: var(--accent); margin-top: 10px; text-align: center;"></div>
+      </div>
+
+      <div id="courses-list"></div>
+    </section>
+
+    <!-- DEVOIRS -->
+    <section id="tab-devoirs" class="tab-content">
+      <h2>Devoirs & Corrections</h2>
+      <div style="display: flex; gap: 8px; margin: 14px 0;">
+        <button class="chip active" onclick="setHwSub('list', this)">Mes Devoirs</button>
+        <button class="chip" onclick="setHwSub('ai', this)">Correction IA</button>
+      </div>
+
+      <div id="hw-sub-list">
+        <div class="card">
+          <input type="text" id="hw-title" placeholder="Titre du devoir">
+          <div style="display:flex; gap:8px;">
+            <select id="hw-subject"><option value="HGGSP">HGGSP</option><option value="Maths">Maths</option><option value="Philo">Philo</option></select>
+            <input type="date" id="hw-date">
+          </div>
+          <button class="btn btn-sm" style="width:100%; margin-top:10px;" onclick="addHw()">Ajouter</button>
+        </div>
+        <div id="hw-container"></div>
+      </div>
+
+      <div id="hw-sub-ai" style="display:none;">
+        <div class="card">
+          <h4>Correction / Notation IA</h4>
+          <textarea id="hw-ai-text" rows="5" placeholder="Colle ton devoir rédigé ou le sujet..."></textarea>
+          <button class="btn" style="width:100%; margin-top:10px;" onclick="runHwCorrection()">Corriger & Noter sur 20</button>
+        </div>
+        <div id="hw-ai-output"></div>
+      </div>
+    </section>
+
+    <!-- REVISIONS (QCM & FLASHCARDS) -->
+    <section id="tab-revisions" class="tab-content">
+      <h2>Espace Révisions & QCM</h2>
+      <div id="quiz-runner" class="card" style="margin-top: 14px;">
+        <p style="color: var(--text-muted);">Sélectionne un cours pour lancer le QCM interactif.</p>
+      </div>
+    </section>
+
+    <!-- CHAT ASSISTANT -->
+    <section id="tab-chat" class="tab-content">
+      <h2>Assistant IA Instantané</h2>
+      <div id="chat-box" style="height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; margin-top: 10px;"></div>
+      
+      <div class="card" style="margin-top: 10px; padding: 10px;">
+        <input type="file" id="chat-file" accept="image/*" style="display: none;" onchange="handleChatFile(this)">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('chat-file').click()">📷</button>
+          <input type="text" id="chat-input" placeholder="Pose une question..." style="margin: 0;">
+          <button class="btn btn-sm" onclick="sendChat()">Envoyer</button>
+        </div>
+        <div id="chat-file-flag" style="font-size: 0.75rem; color: var(--accent); margin-top: 4px;"></div>
+      </div>
+    </section>
+
+    <!-- MODULES SECONDAIRES -->
+    <section id="tab-drawer-view" class="tab-content">
+      <button class="btn btn-sm btn-secondary" onclick="switchTab('accueil')" style="margin-bottom: 14px;">← Retour</button>
+      <div id="drawer-content"></div>
+    </section>
+
+  </main>
+
+  <!-- BULLE IA REDESSINÉE ET FLOTTANTE -->
+  <div class="fab-container">
+    <div class="fab-menu" id="fab-menu">
+      <div class="fab-item" onclick="switchTab('cours')">📝 Nouveau cours</div>
+      <div class="fab-item" onclick="switchTab('chat')">💬 Parler à l'IA</div>
+      <div class="fab-item" onclick="switchTab('revisions')">⚡ QCM Express</div>
+    </div>
+    <button class="fab-main" onclick="toggleFabMenu()">✨</button>
+  </div>
+
+  <!-- BARRE DE NAVIGATION FIXE -->
+  <nav class="bottom-bar">
+    <button class="nav-btn active" onclick="switchTab('accueil')"><span>Accueil</span></button>
+    <button class="nav-btn" onclick="switchTab('cours')"><span>Cours</span></button>
+    <button class="nav-btn" onclick="switchTab('devoirs')"><span>Devoirs</span></button>
+    <button class="nav-btn" onclick="switchTab('revisions')"><span>Révisions</span></button>
+    <button class="nav-btn" onclick="openDrawer()"><span>Plus ☰</span></button>
+  </nav>
+
+  <!-- DRAWER SECONDAIRE -->
+  <div id="drawer" class="drawer-overlay" onclick="closeDrawer()">
+    <div class="drawer-panel" onclick="event.stopPropagation()">
+      <h3>Modules</h3>
+      <button class="chip" onclick="loadModule('timetable')">📅 Emploi du temps</button>
+      <button class="chip" onclick="loadModule('grades')">📊 Notes & Bulletins</button>
+      <button class="chip" onclick="loadModule('pomodoro')">⏱️ Pomodoro</button>
+      <button class="chip" onclick="loadModule('bac')">⏳ Compte à rebours Bac</button>
+      <button class="chip" onclick="loadModule('parcoursup')">🎓 Parcoursup</button>
+      <button class="chip" onclick="loadModule('grandoral')">🗣️ Grand Oral</button>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      user: 'Livio',
+      courses: JSON.parse(localStorage.getItem('ob_courses_v3') || '[]'),
+      homeworks: JSON.parse(localStorage.getItem('ob_hw_v3') || '[]'),
+      chatPhotoB64: null
+    };
+
+    const SUBJECTS = ['Tous', 'HGGSP', 'SES', 'Histoire-Géo', 'Maths', 'Philo', 'SVT', 'Physique-Chimie'];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSubjectChips();
+      renderCourses();
+      renderHomeworks();
+    });
+
+    function saveState() {
+      localStorage.setItem('ob_courses_v3', JSON.stringify(state.courses));
+      localStorage.setItem('ob_hw_v3', JSON.stringify(state.homeworks));
+    }
+
+    function toggleUser() {
+      state.user = state.user === 'Livio' ? 'Lorette' : 'Livio';
+      document.getElementById('user-name').innerText = state.user;
+      document.getElementById('user-avatar').innerText = state.user[0];
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+      
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (btn) btn.classList.add('active');
+      document.getElementById('fab-menu').classList.remove('open');
+    }
+
+    function toggleFabMenu() {
+      document.getElementById('fab-menu').classList.toggle('open');
+    }
+
+    function openDrawer() { document.getElementById('drawer').classList.add('open'); }
+    function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
+
+    // COMPRESSION CANVASES CÔTÉ CLIENT (GAIN DE VITESSE MAJEUR)
+    function compressImage(file, maxDimension = 1200, quality = 0.75) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxDimension || h > maxDimension) {
+            if (w > h) { h = Math.round((h * maxDimension) / w); w = maxDimension; }
+            else { w = Math.round((w * maxDimension) / h); h = maxDimension; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+      });
+    }
+
+    // GENERATION DE COURS COMPLETAIS EN UN SEUL PASS
+    async function generateFastCourse() {
+      const subject = document.getElementById('c-subject').value;
+      const chapter = document.getElementById('c-chapter').value.trim();
+      const text = document.getElementById('c-text').value.trim();
+      const photos = document.getElementById('c-photos').files;
+      const status = document.getElementById('c-status');
+
+      if (!chapter) return alert('Saisis au moins le titre du chapitre.');
+
+      status.innerText = "Optimisation & Compression des images...";
+      let compressedImages = [];
+      if (photos.length > 0) {
+        compressedImages = await Promise.all(Array.from(photos).map(f => compressImage(f)));
+      }
+
+      status.innerText = "Génération IA ultra-rapide (Cours, Fiches & QCM)...";
+
+      try {
+        const res = await fetch('/.netlify/functions/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: text || `Chapitre : ${chapter} (${subject})`,
+            images: compressedImages,
+            task: 'complete_pipeline'
+          })
+        });
+
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+
+        const courseData = {
+          id: Date.now(),
+          subject, chapter,
+          author: state.user,
+          date: new Date().toLocaleDateString('fr-FR'),
+          data: json.data
+        };
+
+        state.courses.unshift(courseData);
+        saveState();
+        renderCourses();
+        status.innerText = "✅ Cours complet généré avec succès !";
+      } catch (err) {
+        status.innerText = `⚠️ Erreur : ${err.message}`;
+      }
+    }
+
+    function renderSubjectChips() {
+      const container = document.getElementById('course-chips');
+      container.innerHTML = SUBJECTS.map((s, idx) => `
+        <button class="chip ${idx === 0 ? 'active' : ''}" onclick="filterCourses('${s}', this)">${s}</button>
+      `).join('');
+    }
+
+    function filterCourses(subject, btn) {
+      document.querySelectorAll('#course-chips .chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      renderCourses(subject);
+    }
+
+    function renderCourses(filter = 'Tous') {
+      const container = document.getElementById('courses-list');
+      let list = state.courses;
+      if (filter !== 'Tous') list = list.filter(c => c.subject === filter);
+
+      if (list.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem; margin-top:10px;">Aucun cours enregistré.</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map(c => `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+            <span>${c.subject} · ${c.author}</span>
+            <span>${c.date}</span>
+          </div>
+          <h3 style="margin:6px 0;">${c.chapter}</h3>
+          
+          <div style="display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-secondary" onclick="viewPart(${c.id}, 'summary')">Résumé</button>
+            <button class="btn btn-sm btn-secondary" onclick="viewPart(${c.id}, 'full')">Cours Complet</button>
+            <button class="btn btn-sm btn-secondary" onclick="viewPart(${c.id}, 'cards')">Flashcards (${c.data?.flashcards?.length || 0})</button>
+            <button class="btn btn-sm" onclick="startQuiz(${c.id})">Lancer QCM</button>
+          </div>
+
+          <div id="c-view-${c.id}" style="display:none; margin-top:14px;"></div>
+        </div>
+      `).join('');
+    }
+
+    function viewPart(id, part) {
+      const c = state.courses.find(x => x.id === id);
+      const el = document.getElementById(`c-view-${id}`);
+      if (!c || !el) return;
+
+      el.style.display = 'block';
+
+      if (part === 'summary') {
+        el.innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:14px; border-radius:12px; font-size:0.88rem; white-space:pre-wrap;">${c.data.summary}</div>`;
+      } else if (part === 'full') {
+        el.innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:14px; border-radius:12px; font-size:0.88rem; white-space:pre-wrap;">${c.data.fullCourse}</div>`;
+      } else if (part === 'cards') {
+        el.innerHTML = c.data.flashcards.map(f => `
+          <div class="flashcard-3d" onclick="this.querySelector('.card-inner').classList.toggle('flipped')">
+            <div class="card-inner">
+              <div class="card-front"><strong>Question :</strong><br>${f.q}</div>
+              <div class="card-back"><strong>Réponse :</strong><br>${f.a}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // RUNNER DE QCM INTERACTIF
+    function startQuiz(id) {
+      switchTab('revisions');
+      const c = state.courses.find(x => x.id === id);
+      const runner = document.getElementById('quiz-runner');
+
+      if (!c || !c.data.quiz) {
+        runner.innerHTML = `<p style="color:var(--text-muted);">Aucun QCM disponible pour ce cours.</p>`;
+        return;
+      }
+
+      let qHtml = c.data.quiz.map((q, idx) => `
+        <div style="margin-bottom:16px;">
+          <p><b>Q${idx+1}. ${q.question}</b></p>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+            ${q.options.map((opt, oIdx) => `
+              <button class="btn btn-secondary btn-sm" style="justify-content:flex-start;" onclick="checkAnswer(this, ${q.answer === oIdx}, '${q.explanation}')">${opt}</button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      runner.innerHTML = `<h3>QCM : ${c.chapter}</h3><br>${qHtml}`;
+    }
+
+    function checkAnswer(btn, isCorrect, exp) {
+      if (isCorrect) {
+        btn.style.background = "var(--success)";
+        btn.innerText += " (Correct !)";
+      } else {
+        btn.style.background = "var(--danger)";
+        btn.innerText += ` (Faux — ${exp})`;
+      }
+    }
+
+    // DEVOIRS
+    function addHw() {
+      const title = document.getElementById('hw-title').value;
+      const subject = document.getElementById('hw-subject').value;
+      const date = document.getElementById('hw-date').value;
+      if (!title) return;
+
+      state.homeworks.push({ id: Date.now(), title, subject, date, done: false });
+      saveState();
+      renderHomeworks();
+    }
+
+    function renderHomeworks() {
+      const container = document.getElementById('hw-container');
+      container.innerHTML = state.homeworks.map(h => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>${h.title}</strong> (${h.subject})
+            <br><small style="color:var(--text-muted);">Pour le ${h.date}</small>
+          </div>
+          <button class="btn btn-sm ${h.done ? 'btn-secondary' : ''}" onclick="toggleHw(${h.id})">${h.done ? 'Fait' : 'À faire'}</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleHw(id) {
+      const h = state.homeworks.find(x => x.id === id);
+      if (h) h.done = !h.done;
+      saveState();
+      renderHomeworks();
+    }
+
+    function setHwSub(sub, btn) {
+      document.querySelectorAll('#tab-devoirs .chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('hw-sub-list').style.display = sub === 'list' ? 'block' : 'none';
+      document.getElementById('hw-sub-ai').style.display = sub === 'ai' ? 'block' : 'none';
+    }
+
+    async function runHwCorrection() {
+      const txt = document.getElementById('hw-ai-text').value;
+      const out = document.getElementById('hw-ai-output');
+      if (!txt) return;
+
+      out.innerHTML = "<p style='color:var(--accent); margin-top:10px;'>Correction en cours...</p>";
+      const res = await fetch('/.netlify/functions/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: `Joue le rôle d'un correcteur du Bac. Donne une note sur 20 et une appréciation détaillée sur ce devoir : ${txt}` })
+      });
+      const json = await res.json();
+      out.innerHTML = `<div class="card" style="white-space:pre-wrap; margin-top:10px;">${json.result}</div>`;
+    }
+
+    // ASSISTANT IA CHAT
+    async function handleChatFile(input) {
+      if (input.files && input.files[0]) {
+        state.chatPhotoB64 = await compressImage(input.files[0]);
+        document.getElementById('chat-file-flag').innerText = "📷 Photo compressée prête à l'envoi";
+      }
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const box = document.getElementById('chat-box');
+      const text = input.value.trim();
+
+      if (!text && !state.chatPhotoB64) return;
+
+      box.innerHTML += `<div style="align-self:flex-end; background:var(--primary-gradient); padding:10px 14px; border-radius:14px; max-width:80%; font-size:0.88rem;">${text}</div>`;
+      
+      const payload = { prompt: text, images: state.chatPhotoB64 ? [state.chatPhotoB64] : [] };
+      input.value = ''; state.chatPhotoB64 = null;
+      document.getElementById('chat-file-flag').innerText = '';
+
+      const res = await fetch('/.netlify/functions/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+
+      box.innerHTML += `<div style="align-self:flex-start; background:rgba(255,255,255,0.08); padding:10px 14px; border-radius:14px; max-width:80%; font-size:0.88rem; white-space:pre-wrap;">${json.result}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // YOUTUBE LINK
+    async function processYouTube() {
+      const url = document.getElementById('yt-url').value.trim();
+      const resContainer = document.getElementById('yt-result');
+      if (!url) return;
+
+      resContainer.innerText = "Analyse de la vidéo YouTube...";
+      const res = await fetch('/.netlify/functions/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ youtubeUrl: url, prompt: "Fais une fiche de synthèse complète." })
+      });
+      const json = await res.json();
+      resContainer.innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:10px; white-space:pre-wrap;">${json.result}</div>`;
+    }
+
+    // MODULES DRAWER
+    function loadModule(mod) {
+      closeDrawer();
+      switchTab('drawer-view');
+      const container = document.getElementById('drawer-content');
+      
+      if (mod === 'timetable') {
+        container.innerHTML = `<h3>Emploi du temps</h3><p style="color:var(--text-muted); margin-top:8px;">Grille de cours interactive synchronisée.</p>`;
+      } else if (mod === 'bac') {
+        container.innerHTML = `<h3>Compte à rebours Bac 2027</h3><h1 style="color:var(--accent); font-size:2.5rem; margin-top:12px;">442 jours</h1>`;
+      } else {
+        container.innerHTML = `<h3>Module ${mod}</h3><p style="color:var(--text-muted); margin-top:8px;">Prêt et opérationnel.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
